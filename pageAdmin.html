@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.2">
+    <title>Admin Page</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #admin-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 1200px; /* Ajout de la largeur maximale */
+            width: 90%; /* Ajout de la largeur */
+            overflow-y: auto;
+            max-height: calc(100vh - 100px);
+            position: relative;
+            margin: 0 auto; /* Pour centrer le conteneur horizontalement */
+        }
+        
+        .top-right-links {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .top-right-links a {
+            margin-left: 10px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .top-right-links a:hover {
+            text-decoration: underline;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input[type="number"],
+        input[type="file"],
+        input[type="checkbox"],
+        button {
+            margin-top: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .strong-fort {
+            color: green;
+            font-weight: bold;
+        }
+        .strong-moyen {
+            color: orange;
+            font-weight: bold;
+        }
+        .strong-faible {
+            color: red;
+            font-weight: bold;
+        }
+        .bottom-links {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .bottom-links a:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="admin-container">
+        <div class="top-right-links">
+            <a href="/">Retour à la page d'accueil</a>
+            <a href="/login">Log Out</a>
+        </div>
+        <h1>Bonjour Admin</h1>
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+            <label for="nomber_caractere">Nombre de caractères :</label>
+            <input type="number" id="nomber_caractere" name="nomber_caractere" min="8" max="20" value="8">
+            
+            <label for="includeNumbers">Au moins un chiffre :</label>
+            <input type="checkbox" id="includeNumbers" name="includeNumbers" checked>
+            
+            <label for="includeUppercase">Au moins une lettre majuscule :</label>
+            <input type="checkbox" id="includeUppercase" name="includeUppercase" checked>
+            
+            <label for="includeLowercase">Au moins une lettre minuscule :</label>
+            <input type="checkbox" id="includeLowercase" name="includeLowercase" checked>
+            
+            <label for="includeSymbols">Au moins un symbole :</label>
+            <input type="checkbox" id="includeSymbols" name="includeSymbols" checked>
+            
+            <label for="fileToUpload">Choisir un fichier :</label>
+            <input type="file" id="fileToUpload" name="fileToUpload">
+            
+            <button type="submit" class="btn btn-primary btn-block">Tester</button>
+            <p id="fileError" class="error" style="display: none;">IL faut importer un fichier d'abord</p>
+            <p id="criteriaError" class="error" style="display: none;">Veuillez sélectionner au moins deux critères pour tester les mots de passe.</p>
+        </form>
+        
+        <div id="results">
+            {% if results %}
+            <a href="{{ url_for('download_admin_results') }}">Télécharger les résultats</a>
+            <h2>Résultats de l'évaluation</h2>
+            <table>
+                <tr>
+                    <th>Mot de passe</th>
+                    <th>Force</th>
+                    <th>Dans Dictionnaire</th>
+                    <th>Temps pour craquer</th>
+                    <th>FeedBack</th>
+                    <th>Mots de passe suggérés</th>
+                    
+                </tr>
+                {% for password, result in results %}
+                <tr>
+                    <td>{{ password }}</td>
+                    <td class="{{ 'strong-fort' if result.isStrong == 'fort' else 'strong-moyen' if result.isStrong == 'moyen' else 'strong-faible' }}">{{ result.isStrong }}</td>
+                    <td>{{ 'oui' if result.isCommon else 'non' }}</td>
+                    <td>
+                        
+                        {{ result.timeToCrack }}
+                    </td>
+                    <td>
+                        {% if result.feedback %}
+                        {{ result.feedback|join(' ') }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result.suggestedPasswords %}
+                        {{ result.suggestedPasswords|join(', ') }}
+                        {% else %}
+                        Pas de suggestion.
+                        {% endif %}
+                    </td>
+                    
+                </tr>
+                
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            const fileInput = document.getElementById('fileToUpload');
+            if (fileInput.files.length === 0) {
+                event.preventDefault();
+                document.getElementById('fileError').style.display = 'block';
+            }
+
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            let checkedCount = 0;
+            checkboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    checkedCount++;
+                }
+            });
+            if (checkedCount < 2) {
+                event.preventDefault();
+                document.getElementById('criteriaError').style.display = 'block';
+            }
+        });
+
+        // Hide error messages when input changes
+        document.getElementById('fileToUpload').addEventListener('change', function() {
+            document.getElementById('fileError').style.display = 'none';
+        });
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                document.getElementById('criteriaError').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

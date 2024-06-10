@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Administrateurs</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: rgb(250, 249, 249);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            background-color: antiquewhite;
+            width: 400px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            height: 30px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .submit-group {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .submit-group input {
+            height: 40px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            background-color: #5cb85c;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .submit-group input:hover {
+            background-color: #4cae4c;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f8f8f8;
+        }
+        a {
+            display: inline-block;
+            margin: 10px;
+            text-decoration: none;
+            color: #5cb85c;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .links {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Gestion des Administrateurs</h2>
+        <form id="addAdminForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="submit-group">
+                <input type="submit" value="Ajouter Admin">
+            </div>
+        </form>
+        <form id="deleteAdminForm">
+            <div class="form-group">
+                <label for="deleteEmail">Email de l'Admin à Supprimer:</label>
+                <input type="email" id="deleteEmail" required>
+            </div>
+            <div class="submit-group">
+                <input type="submit" value="Supprimer Admin">
+            </div>
+        </form>
+        <p id="errorMessage" class="error" style="display: none;">Erreur : L'email de l'admin n'existe pas.</p>
+        <table id="adminTable">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Les administrateurs existants seront affichés ici -->
+            </tbody>
+        </table>
+        <div class="links">
+            <a href="/login">Page de Login</a>
+            <a href="/">Index</a>
+            <a href="/admin">Page Admin</a>
+        </div>
+    </div>
+
+    <script>
+        const adminTable = document.getElementById("adminTable");
+        const addAdminForm = document.getElementById("addAdminForm");
+        const deleteAdminForm = document.getElementById("deleteAdminForm");
+        const errorMessage = document.getElementById("errorMessage");
+
+        // Function to fetch and display existing admins
+        function displayAdmins() {
+            fetch('/get-admins')
+            .then(response => response.json())
+            .then(data => {
+                const adminRows = data.admins.map(admin => `<tr><td>${admin.email}</td></tr>`).join('');
+                adminTable.querySelector('tbody').innerHTML = adminRows;
+            });
+        }
+
+        displayAdmins(); // Initial display of admins
+
+        // Add Admin Form Submission
+        addAdminForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            fetch('/add-admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayAdmins();
+                    addAdminForm.reset();
+                    errorMessage.style.display = "none";
+                } else {
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = "block";
+                }
+            });
+        });
+
+        // Delete Admin Form Submission
+        deleteAdminForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const email = document.getElementById("deleteEmail").value;
+
+            fetch('/delete-admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayAdmins();
+                    deleteAdminForm.reset();
+                    errorMessage.style.display = "none";
+                } else {
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = "block";
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>PFA SSI</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" type="text/css" />
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .masthead {
+            position: relative;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .masthead::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+        .masthead .container {
+            position: relative;
+            z-index: 2;
+        }
+        .masthead h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .masthead p {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+        }
+        .password-input-container {
+            background-color: white;
+            padding: 50px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .password-input {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            text-align: center;
+        }
+        .password-feedback {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .password-feedback div {
+            width: 45%;
+            text-align: center;
+        }
+        .password-feedback h5 {
+            margin-bottom: 10px;
+        }
+        .password-criteria {
+            text-align: left;
+            color: red;
+            list-style: none;
+            padding: 0;
+        }
+        .password-criteria .success {
+            color: green;
+        }
+        .criteria {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .suggestions {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .suggestions h5 {
+            font-size: 1.25rem;
+            color: #343a40;
+        }
+        .suggestions ul {
+            list-style: none;
+            padding: 0;
+            color: #343a40;
+        }
+        .suggestions ul li {
+            background: #e9ecef;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .poor-password-practices {
+            padding: 60px 0;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        .poor-password-practices h2 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+        }
+        .poor-password-practices .icon-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .poor-password-practices .icon-grid .icon-item {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .poor-password-practices .icon-grid .icon-item img {
+            max-width: 80px;
+            margin-bottom: 15px;
+        }
+        .poor-password-practices .icon-grid .icon-item h4 {
+            font-size: 1.25rem;
+            margin: 10px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation-->
+    <nav class="navbar navbar-light bg-light static-top">
+        <div class="container">
+            <a class="navbar-brand" href="#!"></a>
+            <a class="btn btn-primary" href="/login" id="aaaa">Admin_login</a>
+        </div>
+    </nav>
+    <!-- Masthead-->
+    <header class="masthead">
+        <div class="container">
+            <h2>Outil de test de la robustesse des mots de passe</h2>
+            <p>Pensez-vous avoir un mot de passe fort ? Découvrez-le ci-dessous.</p>
+            <div class="password-input-container">
+                <form id="passwordForm">
+                    <input type="text" class="form-control password-input" id="password" placeholder="Entrez votre mot de passe">
+                    <div class="password-feedback">
+                        <div class="strength-result" id="strength-result">
+                            <h5>Force du mot de passe :</h5>
+                            <ul id="Strenght"></ul>
+                        </div>
+                        <div class="crack-time" id="crack-time">
+                            <h5>Temps pour craquer :</h5>
+                            <ul id="Time"></ul>
+                        </div>
+                    </div>
+                    <div class="password-criteria">
+                        <ul class="criteria">
+                            <li id="length">Au moins 8 caractères</li>
+                            <li id="uppercase">Au moins une majuscule</li>
+                            <li id="lowercase">Au moins une minuscule</li>
+                            <li id="number">Au moins un chiffre</li>
+                            <li id="symbol">Au moins un symbole</li>
+                        </ul>
+                    </div>
+                    <div class="suggestions" id="suggestion">
+                        <h5>Suggestions :</h5>
+                        <ul id="suggested-password"></ul>
+                    </div>
+                    <div>
+                        <button type="submit">Vérifier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Poor Password Practices Section -->
+    <section class="poor-password-practices">
+        <div class="container">
+            <h2>Les pratiques les plus courantes de mauvais mots de passe</h2>
+            <div class="icon-grid">
+                <div class="icon-item">
+                    <img src="https://passwordmonster.com/wp-content/uploads/2021/08/block-1-create-easy-passwords.png" alt="Créer des mots de passe faciles">
+                    <h4>Créer des mots de passe faciles</h4>
+                </div>
+                <div class="icon-item">
+                    <img src="https://passwordmonster.com/wp-content/uploads/2021/08/block-1-reused-passwords.png" alt="Réutiliser les mots de passe">
+                    <h4>Réutiliser les mots de passe</h4>
+                </div>
+                <div class="icon-item">
+                    <img src="https://passwordmonster.com/wp-content/uploads/2021/08/block-1-never-change-passwords.png" alt="Partager les mots de passe de manière non sécurisée">
+                    <h4>Partager les mots de passe de manière non sécurisée</h4>
+                </div>
+                <div class="icon-item">
+                    <img src="https://passwordmonster.com/wp-content/uploads/2021/08/block-1-reused-passwords.png" alt="Écrire les mots de passe ou les stocker sur des feuilles de calcul ou sur votre téléphone">
+                    <h4>Écrire les mots de passe ou les stocker sur des feuilles de calcul ou sur votre téléphone</h4>
+                </div>
+                <div class="icon-item">
+                    <img src="https://passwordmonster.com/wp-content/uploads/2021/08/block-1-skip-adopting-mfa.png" alt="Ne pas adopter l'authentification multifactorielle (MFA)">
+                    <h4>Ne pas adopter l'authentification multifactorielle (MFA)</h4>
+                </div>
+                <div class="icon-item">
+                    <img src="https://passwordmonster.com/wp-content/uploads/2021/08/block-1-use-minimum-length-passwords.png" alt="Laisser les navigateurs enregistrer vos mots de passe">
+                    <h4>Laisser les navigateurs enregistrer vos mots de passe</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Icons Grid-->
+    <section class="showcase">
+        <div class="container-fluid p-0">
+            <div class="row g-0">
+                <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('{{ url_for('static', filename='assets/3.jpg') }}')"></div>
+                <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+                    <h2>Erreurs et idées fausses courantes</h2>
+                    <p class="lead mb-0">
+                        <ul>
+                            <li>Remplacer des lettres par des chiffres et des symboles. Cette technique est bien connue des pirates informatiques, donc remplacer un "E" par un "3" ou un "5" par un "$" ne vous rend pas beaucoup plus sécurisé.</li>
+                            <li>Penser que satisfaire aux exigences minimales pour un mot de passe le rend fort. Selon les normes actuelles, un mot de passe de 8 caractères ne vous rendra pas très sécurisé.</li>
+                            <li>Croire qu'il est acceptable d'utiliser souvent le même mot de passe tant qu'il est fort. Que se passe-t-il si le site web est piraté ? Savez-vous comment le site web stocke votre mot de passe ? Et s'ils le stockent en texte clair ?</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+            <div class="row g-0">
+                <div class="col-lg-6 text-white showcase-img" style="background-image: url('{{ url_for('static', filename='assets/5.jpg') }}')"></div>
+                <div class="col-lg-6 my-auto showcase-text">
+                    <h2>Pratiques faibles</h2>
+                    <p class="lead mb-0">
+                        <ul>
+                            <li>Stocker des mots de passe dans le champ de notes sur votre téléphone. Est-ce qu'il se synchronise automatiquement avec le cloud, iCloud ou Dropbox ?</li>
+                            <li>Les mettre dans une feuille de calcul. Même protégée par mot de passe, une feuille de calcul ne garde pas les informations en sécurité. Consultez notre blog sur ce sujet et d'autres sujets de sécurité.</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+            <div class="row g-0">
+                <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('{{ url_for('static', filename='assets/8.jpg') }}')"></div>
+                <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+                    <h2>Qu'est-ce qui rend un mot de passe fort ?</h2>
+                    <p class="lead mb-0">
+                        <ul>
+                            <li>Un mot de passe fort est un mot de passe qui n'est ni facilement deviné ni facilement cassé par force brute.</li>
+                            <li>Pour qu'il ne soit pas facilement deviné, il ne doit pas être un mot simple.</li>
+                            <li>Pour qu'il ne soit pas facilement cassé, il doit être long et complexe.</li>
+                            <li>Les superordinateurs peuvent effectuer des milliards de tentatives par seconde pour deviner un mot de passe.</li>
+                            <li>Essayez de faire en sorte que vos mots de passe aient au moins 8 caractères.</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+            <div class="row g-0">
+                <div class="col-lg-6 text-white showcase-img" style="background-image: url('{{ url_for('static', filename='assets/6.jpg') }}')"></div>
+                <div class="col-lg-6 my-auto showcase-text">
+                    <h2>Phrase de passe</h2>
+                    <p class="lead mb-0">
+                        <ul>
+                            <li>Une phrase de passe est simplement un mot de passe plus long, qui peut être une phrase, avec des espaces et de la ponctuation.</li>
+                            <li>L'avantage d'une phrase de passe est qu'elle est généralement plus facile à retenir, mais plus difficile à casser en raison de sa longueur.</li>
+                            <li>Pour chaque caractère supplémentaire dans la longueur d'un mot de passe ou d'une phrase de passe, le temps nécessaire pour le casser augmente de manière exponentielle.</li>
+                            <li>En fin de compte, cela signifie qu'avoir un mot de passe ou une phrase de passe long peut vous rendre beaucoup plus sécurisé qu'avoir un mot de passe court avec quelques symboles ou chiffres.</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+        <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+        document.getElementById("password").addEventListener("input", function() {
+            var password = this.value;
+            var lengthCriteria = document.getElementById("length");
+            var uppercaseCriteria = document.getElementById("uppercase");
+            var lowercaseCriteria = document.getElementById("lowercase");
+            var numberCriteria = document.getElementById("number");
+            var symbolCriteria = document.getElementById("symbol");
+            var message = document.getElementById("strength-result");
+            var crackTime = document.getElementById("crack-time");
+            var suggestionMessage = document.getElementById("suggestion");
+
+            if (password.length >= 8) {
+                lengthCriteria.className = "success";
+            } else {
+                lengthCriteria.className = "error";
+            }
+
+            if (/[A-Z]/.test(password)) {
+                uppercaseCriteria.className = "success";
+            } else {
+                uppercaseCriteria.className = "error";
+            }
+
+            if (/[a-z]/.test(password)) {
+                lowercaseCriteria.className = "success";
+            } else {
+                lowercaseCriteria.className = "error";
+            }
+
+            if (/[0-9]/.test(password)) {
+                numberCriteria.className = "success";
+            } else {
+                numberCriteria.className = "error";
+            }
+
+            if (/[^a-zA-Z0-9]/.test(password)) {
+                symbolCriteria.className = "success";
+            } else {
+                symbolCriteria.className = "error";
+            }
+
+            fetch('/evaluate-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.isStrong) {
+                    message.innerHTML = "<h5>Force du mot de passe :</h5>" + "Très fort";
+                    message.style.color = "green";
+                    crackTime.innerHTML = "<h5>Temps pour craquer :</h5>" + data.timeToCrack;
+                    crackTime.style.color = "green";
+                    suggestionMessage.style.display = "none";
+                } else {
+                    message.innerHTML = "<h5>Force du mot de passe :</h5>" + "Faible";
+                    message.style.color = "red";
+                    crackTime.innerHTML = "<h5>Temps pour craquer :</h5>" + data.timeToCrack;
+                    crackTime.style.color = "red";
+                    if (data.isCommon) {
+                        message.innerHTML += "<br>(commun)";
+                    }
+                    suggestionMessage.style.display = "block";
+                    document.getElementById("suggested-password").innerHTML = '';
+                    data.suggestedPasswords.forEach(function(suggestion) {
+                        var li = document.createElement('li');
+                        li.textContent = suggestion;
+                        document.getElementById("suggested-password").appendChild(li);
+                    });
+                }
+            });
+        });
+
+        document.getElementById("passwordForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            var password = document.getElementById("password").value;
+
+            fetch('/evaluate-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.isStrong) {
+                    document.getElementById("suggested-password").innerHTML = '';
+                    data.suggestedPasswords.forEach(function(suggestion) {
+                        var li = document.createElement('li');
+                        li.textContent = suggestion;
+                        document.getElementById("suggested-password").appendChild(li);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
